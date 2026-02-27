@@ -3,6 +3,7 @@ const cors    = require('cors');
 const fs      = require('fs');
 const path    = require('path');
 const matter  = require('gray-matter');
+const multer  = require('multer');
 
 const app  = express();
 const PORT = 3001;
@@ -37,6 +38,24 @@ app.get('/api/posts', (req, res) => {
         
         res.json({ posts });
     });
+});
+
+app.get('/api/posts/:id', (req, res) => {
+    const postId   = req.params.id;
+    const filePath = path.join(__dirname, '../content', `${postId}.md`);
+    if(fs.existsSync(filePath)){
+        const fileContent       = fs.readFileSync(filePath, 'utf-8');
+        const { data, content } = matter(fileContent);
+        res.json({
+            id: postId,
+            titulo: data.titulo || 'Sin titulo',
+            fecha: data.fecha || '',
+            imagen: data.imagen || null,
+            contenido: content
+        });
+    }else{
+        res.status(404).json({ error: 'Noticia no encontrada' });
+    }
 });
 
 app.listen(PORT, () => {

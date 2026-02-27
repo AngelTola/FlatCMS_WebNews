@@ -72,7 +72,7 @@ body {
 }
 
 .btn-leer-mas {
-  background-color: #0066cc;
+  background-color: #376797;
   color: white;
   border: none;
   padding: 0.6rem 1rem;
@@ -80,6 +80,10 @@ body {
   font-weight: bold;
   width: 100%;
   cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 @media (min-width: 768px) {
@@ -100,4 +104,15 @@ body {
     transform: translateY(-5px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
   }
+}
+
+.texto-markdown {
+  text-align: left;
+  line-height: 1.8;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.texto-markdown p {
+  margin-bottom: 1.2rem;
 }
