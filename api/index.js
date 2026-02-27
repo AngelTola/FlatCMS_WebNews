@@ -6,7 +6,7 @@ const matter  = require('gray-matter');
 const multer  = require('multer');
 
 const app  = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
@@ -68,7 +68,7 @@ app.get('/api/posts/:id', (req, res) => {
     }
 });
 
-app.post('/api/posts', upload.single('image'), (req, res) => {
+app.post('/api/posts', upload.single('imagen'), (req, res) => {
     const { titulo, contenido } = req.body;
     const imagenName = req.file ? req.file.filename : null;
 
@@ -79,7 +79,7 @@ app.post('/api/posts', upload.single('image'), (req, res) => {
 
     const mdContent = `---
     titulo: "${titulo}"
-    fecha: "$(fecha)"
+    fecha: "${fecha}"
     imagen: "${imagenName}"
     ---
     ${contenido}`;
@@ -132,6 +132,12 @@ app.put('/api/posts/:id', upload.single('imagen'), (req, res) => {
     ${contenido}`;
     fs.writeFileSync(filePath, mdContent);
     res.json({ message: 'Noticia actualizada con exito' });
+});
+
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
 app.listen(PORT, () => {

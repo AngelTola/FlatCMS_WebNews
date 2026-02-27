@@ -15,7 +15,7 @@ function TarjetaNoticia({ post }) {
 
     if (!contenidoCompleto) {
       setCargando(true);
-      fetch(`http://localhost:3001/api/posts/${post.id}`)
+      fetch(`/api/posts/${post.id}`)
         .then(res => res.json())
         .then(data => {
           setContenidoCompleto(data.contenido);
@@ -34,7 +34,7 @@ function TarjetaNoticia({ post }) {
   return (
     <article className="tarjeta-noticia">
       {post.imagen && (
-        <img src={`http://localhost:3001/img/${post.imagen}`} alt={post.titulo} className="imagen-noticia" />
+        <img src={`/img/${post.imagen}`} alt={post.titulo} className="imagen-noticia" />
       )}
       <div className="contenido-noticia">
         <span className="fecha-noticia">{post.fecha}</span>
@@ -82,14 +82,14 @@ function PanelAdmin({ volver, posts, refrescarNoticias }) {
 
   const manejarEliminar = async (id) => {
     if (window.confirm('¿Estas seguro de que quieres eliminar esta noticia?')) {
-      await fetch(`http://localhost:3001/api/posts/${id}`, { method: 'DELETE' });
+      await fetch(`/api/posts/${id}`, { method: 'DELETE' });
       refrescarNoticias();
     }
   };
 
   const prepararEdicion = async (id) => {
     setMensaje('Cargando datos...');
-    const res = await fetch(`http://localhost:3001/api/posts/${id}`);
+    const res = await fetch(`/api/posts/${id}`);
     const data = await res.json();
     
     setIdEditando(data.id);
@@ -116,7 +116,7 @@ function PanelAdmin({ volver, posts, refrescarNoticias }) {
     if (imagen) formData.append('imagen', imagen);
     if (imagenActual) formData.append('imagenActual', imagenActual);
 
-    const url = idEditando ? `http://localhost:3001/api/posts/${idEditando}` : 'http://localhost:3001/api/posts';
+    const url = idEditando ? `/api/posts/${idEditando}` : '/api/posts';
     const metodo = idEditando ? 'PUT' : 'POST';
 
     try {
@@ -223,7 +223,7 @@ function App() {
   const [vista, setVista] = useState('inicio');
 
   const cargarNoticias = () => {
-    fetch('http://localhost:3001/api/posts')
+    fetch('/api/posts')
       .then(response => response.json())
       .then(data => setPosts(data.posts))
       .catch(error => console.error('Error:', error));
