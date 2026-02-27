@@ -187,3 +187,74 @@ body {
 
 .btn-editar:hover { background-color: #332f2f; }
 .btn-eliminar:hover { background-color: #332f2f; }
+
+.footer {
+  background-color: #1a1a1a;
+  color: #f4f4f4;
+  padding: 3rem 1.5rem 1rem 1.5rem;
+  margin-top: 3rem;
+  text-align: left;
+}
+
+.footer-contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-seccion h3 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: #ffffff;
+  border-bottom: 2px solid #376797;
+  padding-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.footer-seccion p {
+  line-height: 1.6;
+  color: #cccccc;
+  font-size: 0.95rem;
+}
+
+.redes-sociales {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.redes-sociales a {
+  color: #cccccc;
+  transition: color 0.3s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.redes-sociales a:hover, .redes-sociales a:active {
+  color: #ffffff;
+  transform: translateY(-3px);
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid #333333;
+  color: #888888;
+  font-size: 0.85rem;
+}
+
+@media (min-width: 768px) {
+  .footer-contenido {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .footer-seccion {
+    flex: 1;
+    max-width: 45%;
+  }
+}
