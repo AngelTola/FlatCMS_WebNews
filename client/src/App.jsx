@@ -107,29 +107,34 @@ function PanelAdmin({ volver, posts, refrescarNoticias }) {
   };
 
   const manejarEnvio = async (e) => {
-    e.preventDefault();
-    setMensaje(idEditando ? 'Actualizando...' : 'Publicando...');
+  e.preventDefault();
+  setMensaje(idEditando ? 'Actualizando...' : 'Publicando...');
 
-    const formData = new FormData();
-    formData.append('titulo', titulo);
-    formData.append('contenido', contenido);
-    if (imagen) formData.append('imagen', imagen);
-    if (imagenActual) formData.append('imagenActual', imagenActual);
+  const formData = new FormData();
+  formData.append('titulo', titulo);
+  formData.append('contenido', contenido);
+  if (imagen) formData.append('imagen', imagen);
+  if (imagenActual) formData.append('imagenActual', imagenActual);
 
-    const url = idEditando ? `/api/posts/${idEditando}` : '/api/posts';
-    const metodo = idEditando ? 'PUT' : 'POST';
+  const url = idEditando ? `/api/posts/${idEditando}` : '/api/posts';
+  const metodo = idEditando ? 'PUT' : 'POST';
 
-    try {
-      const response = await fetch(url, { method: metodo, body: formData });
-      if (response.ok) {
-        setMensaje('¡Listo!');
-        refrescarNoticias();
-        setTimeout(() => { setVistaAdmin('lista'); setMensaje(''); }, 1500);
-      }
-    } catch (error) {
-      setMensaje('Error en el servidor.');
+  try {
+    const response = await fetch(url, { method: metodo, body: formData });
+    const data = await response.json();
+
+    if (response.ok) {
+      setMensaje('¡Listo!');
+      refrescarNoticias();
+      setTimeout(() => { setVistaAdmin('lista'); setMensaje(''); }, 1500);
+    } else {
+      setMensaje(`Error: ${data.error || 'Algo salió mal.'}`);
     }
-  };
+  } catch (error) {
+    setMensaje('Error de conexión con el servidor.');
+    console.error(error);
+  }
+};
 
   if (vistaAdmin === 'lista') {
     return (
