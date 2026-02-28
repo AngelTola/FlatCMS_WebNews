@@ -8,6 +8,11 @@ const multer  = require('multer');
 const app  = express();
 const PORT = process.env.PORT || 3001;
 
+const contentPath = path.join(__dirname, '../content');
+const imgPathDir = path.join(__dirname, '../public/img');
+if (!fs.existsSync(contentPath)) fs.mkdirSync(contentPath, { recursive: true });
+if (!fs.existsSync(imgPathDir)) fs.mkdirSync(imgPathDir, { recursive: true });
+
 app.use(cors());
 app.use(express.json());
 
@@ -24,7 +29,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 app.get('/api/posts', (req, res) => {
-    const contentPath = path.join(__dirname, '../content');
     fs.readdir(contentPath, (err, files) => {
         if(err){
             return res.status(500).json({ error: 'No se pudo leer la carpeta de content'});
@@ -52,7 +56,7 @@ app.get('/api/posts', (req, res) => {
 
 app.get('/api/posts/:id', (req, res) => {
     const postId   = req.params.id;
-    const filePath = path.join(__dirname, '../content', `${postId}.md`);
+    const filePath = path.join(contentPath, `${postId}.md`);
     if(fs.existsSync(filePath)){
         const fileContent       = fs.readFileSync(filePath, 'utf-8');
         const { data, content } = matter(fileContent);
@@ -69,69 +73,80 @@ app.get('/api/posts/:id', (req, res) => {
 });
 
 app.post('/api/posts', upload.single('imagen'), (req, res) => {
-    const { titulo, contenido } = req.body;
-    const imagenName = req.file ? req.file.filename : null;
+    try {
+        const { titulo, contenido } = req.body;
+        const imagenName = req.file ? req.file.filename : null;
 
-    const fecha = new Date().toISOString().split('T')[0];
+        const fecha = new Date().toISOString().split('T')[0];
 
-    const id = titulo.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
-    const filePath = path.join(__dirname, '../content', `${id}.md`);
+        const id = titulo.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now();
+        const filePath = path.join(contentPath, `${id}.md`);
 
-    const mdContent = `---
-    titulo: "${titulo}"
-    fecha: "${fecha}"
-    imagen: "${imagenName}"
-    ---
-    ${contenido}`;
+        const mdContent = `---\ntitulo: "${titulo}"\nfecha: "${fecha}"\nimagen: "${imagenName || ''}"\n---\n${contenido}`;
 
-    fs.writeFileSync(filePath, mdContent);
-    res.json( {message: 'Noticia publicada con exito', id });
+        fs.writeFileSync(filePath, mdContent);
+        res.json({ message: 'Noticia publicada con exito', id });
+    } catch (error) {
+        console.error("Error al publicar:", error);
+        res.status(500).json({ error: 'Error interno al guardar la noticia' });
+    }
 });
 
 app.delete('/api/posts/:id', (req, res) => {
-    const postId = req.params.id;
-    const filePath = path.join(__dirname, '../content', `${postId}.md`);
-    if(fs.existsSync(filePath)){
-        const fileContent = fs.readFileSync(filePath, 'utf-8');
-        const { data } = matter(fileContent);
+    try {
+        const postId = req.params.id;
+        const filePath = path.join(contentPath, `${postId}.md`);
+        
+        if(fs.existsSync(filePath)){
+            const fileContent = fs.readFileSync(filePath, 'utf-8');
+            const { data } = matter(fileContent);
 
-        if(data.imagen){
-            const imgPath = path.join(__dirname, '../public/img', data.imagen);
-            if(fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
+            if(data.imagen && data.imagen !== 'null'){
+                const imgPath = path.join(imgPathDir, data.imagen);
+                if(fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
+            }
+            fs.unlinkSync(filePath);
+            res.json({ message: 'Noticia eliminada correctamente' });
+        } else {
+            res.status(404).json({ error: 'Noticia no encontrada' });
         }
-        fs.unlinkSync(filePath);
-        res.json({ message: 'Noticia eliminada correctamente' });
-    }else{
-        res.status(404).json({ error: 'Noticia no encontrada' });
+    } catch(error) {
+        console.error("Error al eliminar:", error);
+        res.status(500).json({ error: 'Error interno al eliminar la noticia' });
     }
 });
 
 app.put('/api/posts/:id', upload.single('imagen'), (req, res) => {
-    const postId = req.params.id;
-    const { titulo, contenido, imagenActual } = req.body;
-    const filePath = path.join(__dirname, '../content', `${postId}.md`);
-    if(!fs.existsSync(filePath)) return res.status(404).json({ error: 'Noticia no encontrada' });
-    
-    const existingContent = fs.readFileSync(filePath, 'utf-8');
-    const { data } = matter(existingContent);
-    const fecha = data.fecha;
+    try {
+        const postId = req.params.id;
+        const { titulo, contenido, imagenActual } = req.body;
+        const filePath = path.join(contentPath, `${postId}.md`);
+        
+        if(!fs.existsSync(filePath)) return res.status(404).json({ error: 'Noticia no encontrada' });
+        
+        const existingContent = fs.readFileSync(filePath, 'utf-8');
+        const { data } = matter(existingContent);
+        const fecha = data.fecha;
 
-    let imagenName = imagenActual;
-    if(req.file){
-        imagenActual = req.file.filename;
-        if(imagenActual && imagenActual !== 'null'){
-            const oldImgPath = path.join(__dirname, '../public/img', imagenActual);
-            if(fs.existsSync(oldImgPath)) fs.unlinkSync(oldImgPath);
+        let imagenName = imagenActual; 
+
+        if(req.file){
+            imagenName = req.file.filename;
+            
+            if(imagenActual && imagenActual !== 'null'){
+                const oldImgPath = path.join(imgPathDir, imagenActual);
+                if(fs.existsSync(oldImgPath)) fs.unlinkSync(oldImgPath);
+            }
         }
+
+        const mdContent = `---\ntitulo: "${titulo}"\nfecha: "${fecha}"\nimagen: "${imagenName || ''}"\n---\n${contenido}`;
+        
+        fs.writeFileSync(filePath, mdContent);
+        res.json({ message: 'Noticia actualizada con exito' });
+    } catch(error) {
+        console.error("Error al actualizar:", error);
+        res.status(500).json({ error: 'Error interno al actualizar la noticia' });
     }
-    const mdContent = `---
-    titulo: "${titulo}"
-    fecha: "${fecha}"
-    imagen: "${imagenName || ''}"
-    ---
-    ${contenido}`;
-    fs.writeFileSync(filePath, mdContent);
-    res.json({ message: 'Noticia actualizada con exito' });
 });
 
 app.use(express.static(path.join(__dirname, '../client/dist')));
@@ -141,5 +156,5 @@ app.get('/{*splat}', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Servidor de la API corriendo en http://localhost:${PORT}`);
+    console.log(`Servidor de la API corriendo en el puerto ${PORT}`);
 });
