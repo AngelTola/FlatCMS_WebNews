@@ -128,10 +128,10 @@ function PanelAdmin({ volver, posts, refrescarNoticias }) {
       refrescarNoticias();
       setTimeout(() => { setVistaAdmin('lista'); setMensaje(''); }, 1500);
     } else {
-      setMensaje(`Error: ${data.error || 'Algo salió mal.'}`);
+      setMensaje(`Error: ${data.error || 'Algo salio mal.'}`);
     }
   } catch (error) {
-    setMensaje('Error de conexión con el servidor.');
+    setMensaje('Error de conexion con el servidor.');
     console.error(error);
   }
 };
@@ -161,10 +161,10 @@ function PanelAdmin({ volver, posts, refrescarNoticias }) {
     <form className="formulario-admin" onSubmit={manejarEnvio}>
       <h2>{idEditando ? 'Editar Noticia ✏️' : 'Publicar Noticia ✍️'}</h2>
       
-      <label>Título de la noticia:</label>
+      <label>Titulo de la noticia:</label>
       <input type="text" required className="input-admin" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
 
-      <label>Contenido (Markdown):</label>
+      <label>Contenido:</label>
       <textarea required className="textarea-admin" rows="8" value={contenido} onChange={(e) => setContenido(e.target.value)} />
 
       <label>Imagen de portada {idEditando && '(Deja vacio para no cambiarla)'}:</label>
@@ -184,7 +184,7 @@ function Footer() {
     <footer className="footer">
       <div className="footer-contenido">
         <div className="footer-seccion">
-          <h3>About us</h3>
+          <h3>Acerca de nosotros</h3>
           <p>
             Somos una fuente confiable de noticias.
             Nuestro objetivo es mantenerte informado acerca de lo mas reciente que ocurre en mundo.

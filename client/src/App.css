@@ -181,7 +181,7 @@ body {
   border-radius: 6px;
   background-color: #332f2f;
   transition: background 0.2s;
-  min-height: 44px; /* Manteniendo la regla táctil de 44px */
+  min-height: 44px;
   min-width: 44px;
 }
 
